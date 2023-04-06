@@ -178,9 +178,8 @@ impl Deref for ProtectedFixedSizeStack {
 
 impl Default for ProtectedFixedSizeStack {
     fn default() -> ProtectedFixedSizeStack {
-        ProtectedFixedSizeStack::new(Stack::default_size()).unwrap_or_else(|err| {
-            panic!("Failed to allocate ProtectedFixedSizeStack with {err:?}")
-        })
+        ProtectedFixedSizeStack::new(Stack::default_size())
+            .unwrap_or_else(|err| panic!("Failed to allocate ProtectedFixedSizeStack with {err:?}"))
     }
 }
 

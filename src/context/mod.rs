@@ -77,7 +77,7 @@ impl Context {
     /// It is unsafe because it is your responsibility to make sure that all data that constructed in
     /// this context have to be dropped properly when the last context is dropped.
     #[inline(always)]
-    pub unsafe fn resume(&self, data: usize) -> Transfer {
+    unsafe fn resume(&self, data: usize) -> Transfer {
         jump_fcontext(self.0, data)
     }
 }
@@ -108,6 +108,10 @@ impl Transfer {
     pub fn new(context: Context, data: usize) -> Transfer {
         Transfer { context, data }
     }
+
+    pub fn resume(&self, data: usize) -> Transfer {
+        unsafe { self.context.resume(data) }
+    }
 }
 
 #[cfg(test)]
@@ -128,7 +132,7 @@ mod tests {
         extern "C" fn context_function(mut t: Transfer) {
             for i in 0usize.. {
                 assert_eq!(t.data, i);
-                t = unsafe { t.context.resume(i) };
+                t = t.resume(i);
             }
 
             unreachable!();
@@ -138,7 +142,7 @@ mod tests {
         let mut t = Transfer::new(unsafe { Context::new(&stack, context_function) }, 0);
 
         for i in 0..10usize {
-            t = unsafe { t.context.resume(i) };
+            t = t.resume(i);
             assert_eq!(t.data, i);
 
             if t.data == 9 {
