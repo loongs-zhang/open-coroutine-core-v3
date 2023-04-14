@@ -19,10 +19,6 @@ extern "C" {
     pub fn setjmp(env: *mut JmpBuf) -> libc::c_int;
 
     pub fn longjmp(env: *mut JmpBuf, arg: libc::c_int);
-
-    pub fn sigsetjmp(env: *mut SigJmpBuf, save_mask: libc::c_int) -> libc::c_int;
-
-    pub fn siglongjmp(env: *mut SigJmpBuf, arg: libc::c_int);
 }
 
 #[cfg(test)]
@@ -42,24 +38,6 @@ mod tests {
                 println!("setjmp back to main");
             } else {
                 println!("setjmp first time through");
-                func(buf);
-            }
-        }
-    }
-
-    #[test]
-    fn test_sig() {
-        unsafe fn func(mut buf: SigJmpBuf) {
-            println!("call siglongjmp");
-            siglongjmp(&mut buf, 1);
-            println!("you will never see this because of siglongjmp");
-        }
-        unsafe {
-            let mut buf: SigJmpBuf = std::mem::zeroed();
-            if sigsetjmp(&mut buf, 1) != 0 {
-                println!("sigsetjmp back to main");
-            } else {
-                println!("sigsetjmp first time through");
                 func(buf);
             }
         }
