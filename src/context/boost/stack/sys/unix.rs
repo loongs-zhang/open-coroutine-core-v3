@@ -5,7 +5,7 @@
 // http://opensource.org/licenses/MIT>, at your option. This file may not be
 // copied, modified, or distributed except according to those terms.
 
-use crate::context::stack::Stack;
+use super::super::Stack;
 use std::ffi::c_void;
 use std::io;
 use std::mem;

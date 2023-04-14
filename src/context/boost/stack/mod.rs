@@ -6,10 +6,10 @@
 // copied, modified, or distributed except according to those terms.
 
 use std::error::Error;
+use std::ffi::c_void;
 use std::fmt::{Debug, Display, Formatter, Result as FmtResult};
 use std::io;
 use std::ops::Deref;
-use std::os::raw::c_void;
 
 mod sys;
 
