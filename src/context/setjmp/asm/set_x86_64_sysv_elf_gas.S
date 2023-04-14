@@ -30,16 +30,19 @@
 .type setjmp,@function
 .align 16
 setjmp:
-    movq (%rsp), %rax   # Save %rip
-    movq %rax, (%rdi)
-    movq %rbx, 8(%rdi)  # Save %rbx
-    movq %rsp, 16(%rdi) # Save %rsp
-    movq %rbp, 24(%rdi) # Save %rbp
-    movq %r12, 32(%rdi) # Save %r12
-    movq %r13, 40(%rdi) # Save %r13
-    movq %r14, 48(%rdi) # Save %r14
-    movq %r15, 56(%rdi) # Save %r14
-    movq $0, %rax       # Return 0
+    lea LJMPRET_LABEL(%rip), %rcx
+    xor %rax, %rax
+    mov %rbx, (%rdi)
+    mov %rbp, 8(%rdi)
+    mov %r12, 16(%rdi)
+    mov %rsp, 24(%rdi)
+    mov %r13, 32(%rdi)
+    mov %r14, 40(%rdi)
+    mov %r15, 48(%rdi)
+    mov %rcx, 56(%rdi)
+    mov %rsi, 64(%rdi)
+    mov %rdx, 72(%rdi)
+LJMPRET_LABEL:
     ret
 .size setjmp,.-setjmp
 

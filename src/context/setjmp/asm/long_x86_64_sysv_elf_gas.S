@@ -30,17 +30,18 @@
 .type longjmp,@function
 .align 16
 longjmp:
-    movq 8(%rdi), %rbx  # Restore %rbx
-    movq 16(%rdi), %rsp # Restore %rsp
-    movq 24(%rdi), %rbp # Restore %rbp
-    movq 32(%rdi), %r12 # Restore %r12
-    movq 40(%rdi), %r13 # Restore %r13
-    movq 48(%rdi), %r14 # Restore %r14
-    movq 56(%rdi), %r15 # Restore %r14
-    movq (%rdi), %rax   # Move new %rip in stack
-    movq %rax, (%rsp)
-    movq %rsi, %rax     # Set return value
-    ret
+    movq (%rdi), %rbx 
+    movq 8(%rdi), %rbp 
+    movq 16(%rdi), %r12 
+    movq 24(%rdi), %rdx 
+    movq 32(%rdi), %r13 
+    movq 40(%rdi), %r14 
+    mov %rdx, %rsp 
+    movq 48(%rdi), %r15 
+    movq 56(%rdi), %rdx 
+    movq 64(%rdi), %rdi 
+    movq 72(%rdi), %rsi 
+    jmp *%rdx
 .size longjmp,.-longjmp
 
 /* Mark that we don't need executable stack.  */
