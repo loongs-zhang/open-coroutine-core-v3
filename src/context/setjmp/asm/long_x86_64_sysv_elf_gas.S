@@ -30,18 +30,18 @@
 .type longjmp,@function
 .align 16
 longjmp:
-    movq (%rdi), %rbx 
-    movq 8(%rdi), %rbp 
-    movq 16(%rdi), %r12 
-    movq 24(%rdi), %rdx 
-    movq 32(%rdi), %r13 
-    movq 40(%rdi), %r14 
-    mov %rdx, %rsp 
-    movq 48(%rdi), %r15 
-    movq 56(%rdi), %rdx 
-    movq 64(%rdi), %rdi 
-    movq 72(%rdi), %rsi 
-    jmp *%rdx
+	movq	0(%rdi), %rsp
+	movq	8(%rdi), %rbp
+	movq	16(%rdi), %rbx
+	movq	24(%rdi), %r12
+	movq	32(%rdi), %r13
+	movq	40(%rdi), %r14
+	movq	48(%rdi), %r15
+	movq	56(%rdi), %rdx		/* return address */
+	movq	%rdx, 0(%rsp)
+	xorl	%eax, %eax
+	incl	%eax			/* return 1 */
+	ret
 .size longjmp,.-longjmp
 
 /* Mark that we don't need executable stack.  */
