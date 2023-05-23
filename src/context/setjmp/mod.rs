@@ -1,5 +1,7 @@
 pub mod adapter;
 
+pub mod scheduler;
+
 #[cfg(target_arch = "x86_64")]
 const _JBLEN: usize = (9 * 2) + 3 + 16;
 

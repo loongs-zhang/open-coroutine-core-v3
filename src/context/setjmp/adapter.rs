@@ -38,6 +38,8 @@ pub struct Context<'c, R> {
     marker: PhantomData<&'c fn() -> GeneratorState<R>>,
 }
 
+unsafe impl<'c, R> Send for Context<'c, R> {}
+
 thread_local! {
     static CONTEXT: Box<RefCell<*const c_void>> = Box::new(RefCell::new(std::ptr::null()));
 }
@@ -48,7 +50,7 @@ impl<'c, R> Context<'c, R> {
             f: Rc::new(Box::new(move || {
                 let context = Context::current().expect("should have a context");
                 let r = f(context);
-                let _ = context.result.replace(MaybeUninit::new(r));
+                _ = context.result.replace(MaybeUninit::new(r));
                 assert!(!context.finished.replace(true));
                 Context::<R>::clean_current();
                 unsafe { longjmp(context.from.as_ptr(), 1) };
@@ -131,6 +133,7 @@ impl<R> Debug for Context<'_, R> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::collections::VecDeque;
 
     #[test]
     fn test() {
@@ -146,5 +149,45 @@ mod tests {
         assert_eq!(GeneratorState::Yielded, context.resume());
         assert_eq!(GeneratorState::Yielded, context.resume());
         assert_eq!(GeneratorState::Complete(1), context.resume());
+    }
+
+    #[test]
+    fn test2() {
+        let mut deque = VecDeque::new();
+        for i in 0..5 {
+            deque.push_back(Context::new(move |c| {
+                c.suspend();
+                println!("{i} second time through");
+                c.suspend();
+                println!("{i} third time through");
+                1
+            }));
+        }
+        while !deque.is_empty() {
+            let context = deque.pop_front().unwrap();
+            assert_eq!(GeneratorState::Yielded, context.resume());
+            assert_eq!(GeneratorState::Yielded, context.resume());
+            assert_eq!(GeneratorState::Complete(1), context.resume());
+        }
+    }
+
+    #[test]
+    fn test3() {
+        let mut deque = VecDeque::new();
+        for i in 0..5 {
+            deque.push_back(Context::new(move |c| {
+                c.suspend();
+                println!("{i} second time through");
+                c.suspend();
+                println!("{i} third time through");
+                1
+            }));
+        }
+        while !deque.is_empty() {
+            let context = deque.pop_front().unwrap();
+            if GeneratorState::Yielded == context.resume() {
+                deque.push_back(context);
+            }
+        }
     }
 }
